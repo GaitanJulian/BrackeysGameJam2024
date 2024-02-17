@@ -11,9 +11,10 @@ public class CinemachinePOVExtension : CinemachineExtension
     [SerializeField] private float horizontalSpeed = 10f;
     [SerializeField] private float verticalSpeed = 10f;
 
-    private PlayerController controller;
+    [SerializeField] private PlayerController controller;
 
     private Vector3 startingRotation;
+
 
     private void Start()
     {

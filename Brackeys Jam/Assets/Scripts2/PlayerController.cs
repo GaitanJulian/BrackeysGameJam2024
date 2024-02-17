@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 
@@ -12,7 +13,7 @@ public class PlayerController : MonoBehaviour
     #region Variables: Movement
     private Vector2 playerInput;
     private CharacterController characterController;
-    private Vector3 direction;
+    public Vector3 direction;
 
     [SerializeField] private float speed;
 
@@ -32,7 +33,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stamina = 2.5f;
 
     public Vector2 deltaInput;
-    private Transform cameraTransform;
+    [SerializeField] private Transform cameraTransform;
+    [SerializeField] private float rotationSpeed;
 
     private void Start()
     {
@@ -47,6 +49,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        ApplyRotation();
         ApplyGravity();
         ApplyMovement();
     }
@@ -92,13 +95,24 @@ public class PlayerController : MonoBehaviour
         direction.y = velocity;
     }
 
+
+
+    private void ApplyRotation()
+    {
+        direction = Quaternion.Euler(0.0f, cameraTransform.eulerAngles.y, 0.0f) * new Vector3(playerInput.x, 0.0f, playerInput.y);
+        var targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        // Now apply the rotation to the character
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+
     //Assign the values of the input from the player.
     public void Move(InputAction.CallbackContext context)
     {
         playerInput = context.ReadValue<Vector2>();
         direction = new Vector3(playerInput.x, 0, playerInput.y);
-        direction = cameraTransform.forward * direction.z + cameraTransform.right * direction.x;
     }
+
 
     public void Jump(InputAction.CallbackContext context)
     {
